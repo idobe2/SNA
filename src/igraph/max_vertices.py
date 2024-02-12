@@ -19,7 +19,7 @@ if len(g.vs) > max_vertices:
 layout = g.layout_fruchterman_reingold()
 
 # Visualize the graph
-igraph.plot(g, target='test.png', bbox=(1920, 1080), layout=layout)
+igraph.plot(g, target='wikivital_mathematics.png', bbox=(1920, 1080), layout=layout)
 
 # Print the number of vertices and edges
 print("Number of vertices:", len(g.vs))
