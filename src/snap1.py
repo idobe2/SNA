@@ -1,7 +1,5 @@
 import snap
 import graphviz
-
-
 def load_graph_from_txt(filename):
     # Create a new undirected graph
     graph = snap.TUNGraph.New()
@@ -25,6 +23,6 @@ def visualize_graph(graph):
 
 
 if __name__ == "__main__":
-    filename = "graphs/facebook_combined.txt"  # Path to the facebook_combined.txt file
+    filename = "../txt/facebook_combined.txt"  # Path to the facebook_combined.txt file
     graph = load_graph_from_txt(filename)
     visualize_graph(graph)

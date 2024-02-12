@@ -1,9 +1,7 @@
-# import snap
-
 import networkx as nx
 import matplotlib.pyplot as plt
 
-g = nx.read_edgelist('graphs/Wiki-Vote.txt', create_using=nx.DiGraph(), nodetype=int)
+g = nx.read_edgelist('../txt/email-Eu-core.txt', create_using=nx.DiGraph(), nodetype=int)
 
 print(nx.info(g))
 
