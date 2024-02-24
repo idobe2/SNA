@@ -1,22 +1,19 @@
-import pandas as pd
+# Importing Libraries
 import networkx as nx
+import pandas as pd
 import matplotlib.pyplot as plt
+import pickle
 
-# Load edge list
-edges_df = pd.read_csv("../../csv/musae_git_edges.csv")
+# Importing dataset
+users = pd.read_csv('../../csv/musae_git_target.csv')
 
-# Load the dataset into a NetworkX graph
-G = nx.Graph()
-for index, row in edges_df.iterrows():
-    G.add_edge(row['Source'], row['Target'])
+# Reading Graphs
+Data = open('../../csv/musae_git_edges.csv', "r")
+next(Data, None)  # skip the first line in the input file
+followers = nx.parse_edgelist(Data, delimiter=',', create_using=nx.Graph(), nodetype=int)
 
-# Calculate the degree of each node
-degrees = dict(G.degree())
-
-# Plot the degree distribution
-degree_values = list(degrees.values())
-plt.hist(degree_values, bins=50, color='skyblue', edgecolor='black')
-plt.title('Degree Distribution')
-plt.xlabel('Degree')
-plt.ylabel('Number of Nodes')
+degree_distribution = nx.degree_histogram(followers)
+fig = plt.figure(figsize=(15, 10))
+x = [i for i in range(0, 50)]
+plt.bar(x, degree_distribution[0:50])
 plt.show()

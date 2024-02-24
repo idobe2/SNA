@@ -2,11 +2,29 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 
+
+def neighborhood_overlap(G, node_a, node_b):
+    neighbors_a = set(G.neighbors(node_a))
+    neighbors_b = set(G.neighbors(node_b))
+
+    # Nodes that are neighbors of both A and B
+    common_neighbors = neighbors_a.intersection(neighbors_b)
+
+    # Nodes that are neighbors of at least one of A or B
+    all_neighbors = neighbors_a.union(neighbors_b)
+
+    if len(all_neighbors) == 0:
+        return 0
+    else:
+        return len(common_neighbors) / len(all_neighbors)
+
+
 def giant_component_size(G):
     # Compute the sizes of all connected components
     component_sizes = [len(c) for c in nx.connected_components(G)]
     # Return the size of the largest connected component
     return max(component_sizes)
+
 
 # Load edge list
 edges_df = pd.read_csv("../../csv/stormofswords.csv")
@@ -47,3 +65,7 @@ plt.xlabel('Percentage of removed edges')
 plt.ylabel('Size of giant component')
 plt.grid(True)
 plt.show()
+
+overlap = neighborhood_overlap(G, 'Sandor', 'Ilyn')
+print("Neighborhood overlap between node_a and node_b:", overlap)
+

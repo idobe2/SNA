@@ -5,7 +5,7 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 
 # Personal Access Token from GitHub
-ACCESS_TOKEN = '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'
+ACCESS_TOKEN = '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'
 
 
 def get_user_repositories(username):
@@ -67,7 +67,7 @@ def process_user(row):
                 repo_languages_data = response.json()
                 repos_languages.extend(list(repo_languages_data.keys()))
                 # Introduce a delay to stay within rate limit
-                time.sleep(1.0)  # Adjust this delay as needed
+                time.sleep(0.8)  # Adjust this delay as needed
             else:
                 print(f"Failed to fetch repositories for {username}")
         most_common_language = get_most_common_language(repos_languages)
