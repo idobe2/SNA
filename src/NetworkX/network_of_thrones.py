@@ -69,3 +69,22 @@ plt.show()
 overlap = neighborhood_overlap(G, 'Sandor', 'Ilyn')
 print("Neighborhood overlap between node_a and node_b:", overlap)
 
+# Create a list of neighborhoods for each edge
+neighborhoods = [set(nx.neighbors(G, edge[0])) & set(nx.neighbors(G, edge[1])) for edge in G.edges()]
+
+# Create a weighted graph where edge weights correspond to neighborhood overlap
+WG = nx.Graph()
+for edge, neighborhood in zip(G.edges(), neighborhoods):
+    WG.add_edge(edge[0], edge[1], weight=len(neighborhood))
+
+# Extract edge weights and neighborhood overlap
+weights = [WG[edge[0]][edge[1]]['weight'] for edge in WG.edges()]
+overlap = [len(set(nx.neighbors(G, edge[0])) & set(nx.neighbors(G, edge[1]))) for edge in WG.edges()]
+
+# Plot the data
+plt.scatter(weights, overlap)
+plt.xlabel('Edge Weight')
+plt.ylabel('Neighborhood Overlap')
+plt.title('Edge Weight vs. Neighborhood Overlap')
+plt.grid(True)
+plt.show()
