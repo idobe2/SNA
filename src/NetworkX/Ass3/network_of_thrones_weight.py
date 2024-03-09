@@ -11,7 +11,7 @@ def giant_component_size(G):
 
 
 # Load edge list
-edges_df = pd.read_csv("../../csv/stormofswords.csv")
+edges_df = pd.read_csv("../../../csv/stormofswords.csv")
 
 # Load the dataset into a NetworkX graph
 G = nx.Graph()
