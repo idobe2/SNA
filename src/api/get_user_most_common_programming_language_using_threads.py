@@ -5,7 +5,7 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 
 # Personal Access Token from GitHub
-ACCESS_TOKEN = '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'
+ACCESS_TOKEN = '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'
 
 
 def get_user_repositories(username):
@@ -91,7 +91,7 @@ def main():
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
 
-        with ThreadPoolExecutor(max_workers=3) as executor:
+        with ThreadPoolExecutor(max_workers=5) as executor:
             results = executor.map(process_user, reader)
             for result in results:
                 if result:
