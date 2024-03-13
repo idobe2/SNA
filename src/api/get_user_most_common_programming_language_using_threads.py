@@ -7,7 +7,7 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 
 # Personal Access Token from GitHub
-ACCESS_TOKEN = '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'
+ACCESS_TOKEN = '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'
 
 start_time = time.time()
 
@@ -63,6 +63,7 @@ def process_user(row, request_counter):
     """
     if row['bio'] != 'Bio not available':
         username = row['name']
+        uid = row['id']
         repos_languages = []
         for repo_languages_url in get_user_repositories(username):
             response = requests.get(repo_languages_url, headers={"Authorization": f"token {ACCESS_TOKEN}"})
@@ -73,13 +74,13 @@ def process_user(row, request_counter):
                 # Introduce a delay to stay within rate limit
                 time.sleep(0.5)  # Adjust this delay as needed
             else:
-                print(f"Failed to fetch repositories for {username}")
+                print(f"Failed to fetch repositories for {uid}: {username}")
         most_common_language = get_most_common_language(repos_languages)
         row['most_common_language'] = most_common_language
-        print(f"Fetched data for {username}: Most common language: {most_common_language}")
+        print(f"Fetched data for {uid}: {username}: Most common language: {most_common_language}")
         return row
     else:
-        print(f"Skipped! Bio not available for {row['name']}")
+        print(f"Skipped! Bio not available for {row['id']}: {row['name']}")
         return None
 
 
@@ -95,7 +96,7 @@ def print_progress_message():
 
 
 def main():
-    input_file = '../../csv/usernames_with_bio.csv'
+    input_file = '../../csv/sce3.csv'
     output_file = 'usernames_with_language.csv'
     global request_counter
     request_counter = Counter()
@@ -111,7 +112,7 @@ def main():
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
+        with ThreadPoolExecutor(max_workers=4) as executor:
             results = executor.map(lambda x: process_user(x, request_counter), reader)
             for result in results:
                 if result:
