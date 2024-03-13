@@ -1,12 +1,15 @@
 import csv
+import threading
+
 import requests
 import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 
 # Personal Access Token from GitHub
-ACCESS_TOKEN = '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'
+ACCESS_TOKEN = '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'
 
+start_time = time.time()
 
 def get_user_repositories(username):
     """
@@ -47,12 +50,13 @@ def get_most_common_language(languages):
     return language_counter.most_common(1)[0][0] if language_counter else 'No languages detected'
 
 
-def process_user(row):
+def process_user(row, request_counter):
     """
     Processes a user from the input CSV file.
 
     Args:
         row (dict): A dictionary containing user data.
+        request_counter (Counter): Counter object to track the number of requests.
 
     Returns:
         dict or None: Processed user data with the most common language added, or None if user processing was skipped.
@@ -62,12 +66,12 @@ def process_user(row):
         repos_languages = []
         for repo_languages_url in get_user_repositories(username):
             response = requests.get(repo_languages_url, headers={"Authorization": f"token {ACCESS_TOKEN}"})
-            # print(f"Request made: {response.request.method} {response.request.url}")
+            request_counter['total_requests'] += 1
             if response.status_code == 200:
                 repo_languages_data = response.json()
                 repos_languages.extend(list(repo_languages_data.keys()))
                 # Introduce a delay to stay within rate limit
-                time.sleep(0.8)  # Adjust this delay as needed
+                time.sleep(0.5)  # Adjust this delay as needed
             else:
                 print(f"Failed to fetch repositories for {username}")
         most_common_language = get_most_common_language(repos_languages)
@@ -79,9 +83,25 @@ def process_user(row):
         return None
 
 
+def print_progress_message():
+    """
+    Prints a progress message every 10 seconds.
+    """
+    interval = 30
+    while True:
+        uptime = time.time() - start_time
+        print(f"Running... req/hour: {int(request_counter['total_requests']/(uptime/60/60))} Total: {request_counter['total_requests']}")
+        time.sleep(interval)
+
+
 def main():
     input_file = '../../csv/usernames_with_bio.csv'
     output_file = 'usernames_with_language.csv'
+    global request_counter
+    request_counter = Counter()
+
+    progress_thread = threading.Thread(target=print_progress_message, daemon=True)
+    progress_thread.start()
 
     with open(input_file, 'r', newline='', encoding='utf-8') as infile, \
             open(output_file, 'w', newline='', encoding='utf-8') as outfile:
@@ -91,8 +111,8 @@ def main():
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
 
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            results = executor.map(process_user, reader)
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            results = executor.map(lambda x: process_user(x, request_counter), reader)
             for result in results:
                 if result:
                     writer.writerow(result)
