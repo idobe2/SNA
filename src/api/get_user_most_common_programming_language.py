@@ -4,11 +4,9 @@ from collections import Counter
 import sys
 import os
 
-sys.path.append(os.path.abspath('..'))
-sys.path.append(os.path.abspath('../src'))
-from src import config
-
-ACCESS_TOKEN = config.ACCESS_TOKEN
+sys.path.append(os.path.abspath('../../'))
+sys.path.append(os.path.abspath('src'))
+from src.config import ACCESS_TOKEN
 
 
 def get_user_repositories(username):

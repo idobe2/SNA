@@ -7,12 +7,9 @@ from concurrent.futures import ThreadPoolExecutor
 import sys
 import os
 
-sys.path.append(os.path.abspath('..'))
-sys.path.append(os.path.abspath('../src'))
-from src import config
-
-# Constants
-ACCESS_TOKEN = config.ENTERPRISE_ACCESS_TOKEN
+sys.path.append(os.path.abspath('../../'))
+sys.path.append(os.path.abspath('src'))
+from src.config import ENTERPRISE_ACCESS_TOKEN
 
 start_time = time.time()
 
@@ -30,7 +27,7 @@ def get_user_repositories(username):
     try:
         url = f"https://api.github.com/users/{username}/repos"
         headers = {
-            "Authorization": f"token {ACCESS_TOKEN}",
+            "Authorization": f"token {ENTERPRISE_ACCESS_TOKEN}",
             "Accept": "application/vnd.github.v3+json"
         }
         response = requests.get(url, headers=headers)
@@ -73,7 +70,8 @@ def process_user(row, request_counter):
         repos_languages = []
         for repo_languages_url in get_user_repositories(username):
             try:
-                response = requests.get(repo_languages_url, headers={"Authorization": f"token {ACCESS_TOKEN}"})
+                response = requests.get(repo_languages_url,
+                                        headers={"Authorization": f"token {ENTERPRISE_ACCESS_TOKEN}"})
                 request_counter['total_requests'] += 1
                 response.raise_for_status()  # Raise an error for non-200 status codes
                 repo_languages_data = response.json()
@@ -117,7 +115,7 @@ def save_to_csv(results, writer):
 
 
 def main():
-    input_file = '../../csv/sce3.csv'
+    input_file = '../../csv/current.csv'
     output_file = 'usernames_with_language.csv'
     global request_counter
     request_counter = Counter()
