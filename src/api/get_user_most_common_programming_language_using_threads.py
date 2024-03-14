@@ -1,15 +1,21 @@
 import csv
 import threading
-
 import requests
 import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
+import sys
+import os
 
-# Personal Access Token from GitHub
-ACCESS_TOKEN = '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'
+sys.path.append(os.path.abspath('..'))
+sys.path.append(os.path.abspath('../src'))
+from src import config
+
+# Constants
+ACCESS_TOKEN = config.ENTERPRISE_ACCESS_TOKEN
 
 start_time = time.time()
+
 
 def get_user_repositories(username):
     """
@@ -21,18 +27,18 @@ def get_user_repositories(username):
     Returns:
         list: List of URLs to the languages of the user's repositories.
     """
-    url = f"https://api.github.com/users/{username}/repos"
-    headers = {
-        "Authorization": f"token {ACCESS_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    # print(f"Fetching repositories for {username}...")
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
+    try:
+        url = f"https://api.github.com/users/{username}/repos"
+        headers = {
+            "Authorization": f"token {ACCESS_TOKEN}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Raise an error for non-200 status codes
         repos_data = response.json()
         return [repo['languages_url'] for repo in repos_data]
-    else:
-        print(f"Failed to fetch repositories for {username}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching repositories for {username}")
         return []
 
 
@@ -66,15 +72,16 @@ def process_user(row, request_counter):
         uid = row['id']
         repos_languages = []
         for repo_languages_url in get_user_repositories(username):
-            response = requests.get(repo_languages_url, headers={"Authorization": f"token {ACCESS_TOKEN}"})
-            request_counter['total_requests'] += 1
-            if response.status_code == 200:
+            try:
+                response = requests.get(repo_languages_url, headers={"Authorization": f"token {ACCESS_TOKEN}"})
+                request_counter['total_requests'] += 1
+                response.raise_for_status()  # Raise an error for non-200 status codes
                 repo_languages_data = response.json()
                 repos_languages.extend(list(repo_languages_data.keys()))
                 # Introduce a delay to stay within rate limit
                 time.sleep(0.5)  # Adjust this delay as needed
-            else:
-                print(f"Failed to fetch repositories for {uid}: {username}")
+            except requests.exceptions.RequestException as e:
+                print(f"Error fetching repositories for {uid}: {username}")
         most_common_language = get_most_common_language(repos_languages)
         row['most_common_language'] = most_common_language
         print(f"Fetched data for {uid}: {username}: Most common language: {most_common_language}")
@@ -91,8 +98,22 @@ def print_progress_message():
     interval = 30
     while True:
         uptime = time.time() - start_time
-        print(f"Running... req/hour: {int(request_counter['total_requests']/(uptime/60/60))} Total: {request_counter['total_requests']}")
+        print(
+            f"Running... req/hour: {int(request_counter['total_requests'] / (uptime / 60 / 60))} Total: {request_counter['total_requests']}")
         time.sleep(interval)
+
+
+def save_to_csv(results, writer):
+    """
+    Saves processed user data to CSV.
+
+    Args:
+        results (iterator): Processed user data.
+        writer (csv.DictWriter): CSV writer object.
+    """
+    for result in results:
+        if result:
+            writer.writerow(result)
 
 
 def main():
@@ -100,7 +121,6 @@ def main():
     output_file = 'usernames_with_language.csv'
     global request_counter
     request_counter = Counter()
-
     progress_thread = threading.Thread(target=print_progress_message, daemon=True)
     progress_thread.start()
 
@@ -112,11 +132,18 @@ def main():
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
 
-        with ThreadPoolExecutor(max_workers=4) as executor:
+        with ThreadPoolExecutor(max_workers=2) as executor:
             results = executor.map(lambda x: process_user(x, request_counter), reader)
-            for result in results:
-                if result:
-                    writer.writerow(result)
+            try:
+                save_to_csv(results, writer)
+            except KeyboardInterrupt:
+                print("Saving data before exit...")
+                save_to_csv(results, writer)
+                raise  # Re-raise KeyboardInterrupt after saving data
+            finally:
+                # Make sure to consume all remaining results
+                for _ in results:
+                    pass
 
 
 if __name__ == "__main__":

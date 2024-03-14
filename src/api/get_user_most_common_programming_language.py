@@ -1,9 +1,14 @@
 import csv
 import requests
 from collections import Counter
+import sys
+import os
 
-# Personal Access Token from GitHub
-ACCESS_TOKEN = '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'
+sys.path.append(os.path.abspath('..'))
+sys.path.append(os.path.abspath('../src'))
+from src import config
+
+ACCESS_TOKEN = config.ACCESS_TOKEN
 
 
 def get_user_repositories(username):
