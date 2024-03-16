@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Read the CSV file
-df = pd.read_csv("../../csv/usernames_with_language.csv")
+df = pd.read_csv("../csv/usernames_with_language.csv")
 
 
 # Define a function to assign weight based on programming language

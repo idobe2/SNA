@@ -14,7 +14,7 @@ from src.config import ENTERPRISE_ACCESS_TOKEN
 start_time = time.time()
 
 
-def get_user_repositories(username):
+def get_user_repositories(username, error_counter):
     """
     Fetches the repositories of a given user from the GitHub API.
 
@@ -36,6 +36,12 @@ def get_user_repositories(username):
         return [repo['languages_url'] for repo in repos_data]
     except requests.exceptions.RequestException as e:
         print(f"Error fetching repositories for {username}")
+        if error_counter['total_error'] < 5:
+            error_counter['total_error'] += 1
+        else:
+            print("Exceed rate limit! Waiting 15 minutes...")
+            time.sleep(900)
+            error_counter['total_error'] = 0
         return []
 
 
@@ -53,7 +59,7 @@ def get_most_common_language(languages):
     return language_counter.most_common(1)[0][0] if language_counter else 'No languages detected'
 
 
-def process_user(row, request_counter):
+def process_user(row, request_counter, error_counter):
     """
     Processes a user from the input CSV file.
 
@@ -68,7 +74,7 @@ def process_user(row, request_counter):
         username = row['name']
         uid = row['id']
         repos_languages = []
-        for repo_languages_url in get_user_repositories(username):
+        for repo_languages_url in get_user_repositories(username, error_counter):
             try:
                 response = requests.get(repo_languages_url,
                                         headers={"Authorization": f"token {ENTERPRISE_ACCESS_TOKEN}"})
@@ -77,7 +83,7 @@ def process_user(row, request_counter):
                 repo_languages_data = response.json()
                 repos_languages.extend(list(repo_languages_data.keys()))
                 # Introduce a delay to stay within rate limit
-                time.sleep(0.5)  # Adjust this delay as needed
+                time.sleep(1.0)  # Adjust this delay as needed
             except requests.exceptions.RequestException as e:
                 print(f"Error fetching repositories for {uid}: {username}")
         most_common_language = get_most_common_language(repos_languages)
@@ -117,8 +123,8 @@ def save_to_csv(results, writer):
 def main():
     input_file = '../../csv/current.csv'
     output_file = 'usernames_with_language.csv'
-    global request_counter
-    request_counter = Counter()
+    global request_counter, error_counter
+    request_counter = error_counter = Counter()
     progress_thread = threading.Thread(target=print_progress_message, daemon=True)
     progress_thread.start()
 
@@ -131,7 +137,7 @@ def main():
         writer.writeheader()
 
         with ThreadPoolExecutor(max_workers=2) as executor:
-            results = executor.map(lambda x: process_user(x, request_counter), reader)
+            results = executor.map(lambda x: process_user(x, request_counter, error_counter), reader)
             try:
                 save_to_csv(results, writer)
             except KeyboardInterrupt:
