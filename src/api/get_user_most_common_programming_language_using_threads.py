@@ -121,7 +121,7 @@ def save_to_csv(results, writer):
 
 
 def main():
-    input_file = '../../csv/current.csv'
+    input_file = '../../csv/usernames_with_bio.csv'
     output_file = 'usernames_with_language.csv'
     global request_counter, error_counter
     request_counter = error_counter = Counter()
