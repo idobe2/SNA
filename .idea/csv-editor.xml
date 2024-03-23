@@ -3,14 +3,21 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="\a.csv">
+        <entry key="\csv\musae_git_edges.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\csv\musae_git_edges.csv">
+        <entry key="\csv\stormofswords.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\csv\tribes.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
