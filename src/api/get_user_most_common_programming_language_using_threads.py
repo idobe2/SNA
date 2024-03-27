@@ -98,13 +98,14 @@ def process_user(row, request_counter, error_counter):
 
 def print_progress_message():
     """
-    Prints a progress message every 10 seconds.
+    Prints a progress message every 15 seconds.
     """
-    interval = 30
+    interval = 15
     while True:
         uptime = time.time() - start_time
+        requests_per_hour = (int(request_counter['total_requests'] / (uptime / 60 / 60)))
         print(
-            f"Running... req/hour: {int(request_counter['total_requests'] / (uptime / 60 / 60))} Total: {request_counter['total_requests']}")
+            f"[Running] req/hour: {requests_per_hour} Total: {request_counter['total_requests']}")
         time.sleep(interval)
 
 
@@ -137,7 +138,7 @@ def main():
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
 
-        with ThreadPoolExecutor(max_workers=3) as executor:
+        with ThreadPoolExecutor(max_workers=2) as executor:
             results = executor.map(lambda x: process_user(x, request_counter, error_counter), reader)
             try:
                 save_to_csv(results, writer)
