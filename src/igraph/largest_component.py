@@ -21,7 +21,7 @@ largest_component = components.giant()
 ml_target_values = target_df.set_index('id')['ml_target']
 
 # Define colors for nodes based on ml_target values
-node_colors = ['blue' if node['name'] in ml_target_values and ml_target_values[node['name']] == 1 else 'gray' for node in largest_component.vs]
+node_colors = ['blue' if node['name'] in ml_target_values and ml_target_values[node['name']] == 1 else 'yellow' for node in largest_component.vs]
 
 # Using a layout suitable for large graphs
 layout = largest_component.layout_fruchterman_reingold()
