@@ -138,7 +138,7 @@ def main():
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
+        with ThreadPoolExecutor(max_workers=3) as executor:
             results = executor.map(lambda x: process_user(x, request_counter, error_counter), reader)
             try:
                 save_to_csv(results, writer)

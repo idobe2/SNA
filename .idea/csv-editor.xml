@@ -10,7 +10,28 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\csv\musae_git_target.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\csv\musae_git_target_with_languages.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\csv\stormofswords.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\csv\temp.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -45,7 +66,21 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\csv\usernames_without_bio_with_language.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\src\api\usernames_with_language.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\txt\games.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
