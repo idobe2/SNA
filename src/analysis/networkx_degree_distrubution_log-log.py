@@ -38,10 +38,10 @@ def plot_degree_distribution(G, ml_target_value, ax, title):
 fig, axes = plt.subplots(1, 2, figsize=(20, 10))
 
 # Plot degree distribution for ml_target = 0
-plot_degree_distribution(G, 0, axes[0], 'Degree Distribution - Web developers')
+plot_degree_distribution(G, 0, axes[0], 'Web Developers')
 
 # Plot degree distribution for ml_target = 1
-plot_degree_distribution(G, 1, axes[1], 'Degree Distribution - Machine learning developers ')
+plot_degree_distribution(G, 1, axes[1], 'ML Developers')
 
 plt.tight_layout()
 plt.show()
