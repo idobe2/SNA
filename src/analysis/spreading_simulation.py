@@ -71,7 +71,7 @@ def sir_model(G, beta, gamma, initial_infected, steps):
 beta = 0.3  # Infection rate
 gamma = 0.1  # Recovery rate
 initial_infected = [0, 1, 2, 3, 4]  # Starting with a few initial infected nodes
-steps = 100
+steps = 50
 
 # Run the simulation
 susceptible_count, infected_count, recovered_count = sir_model(G, beta, gamma, initial_infected, steps)

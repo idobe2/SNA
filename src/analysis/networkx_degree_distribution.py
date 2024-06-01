@@ -26,7 +26,7 @@ degree_distribution_ml_1 = nx.degree_histogram(followers.subgraph([node for node
 # Plot the degree distribution for ml_target = 0 in log-log scale
 fig, ax = plt.subplots(figsize=(15, 10))
 # x = [i for i in range(len(degree_distribution_ml_0)) if degree_distribution_ml_0[i] > 0]
-x = [i for i in range(150) if degree_distribution_ml_0[i] > 0]
+x = [i for i in range(180) if degree_distribution_ml_0[i] > 0]
 y = [degree_distribution_ml_0[i] for i in x]
 ax.bar(x, y)
 ax.set_title('Web Developers')
@@ -38,7 +38,7 @@ plt.show()
 # Plot the degree distribution for ml_target = 1 in log-log scale
 fig, ax = plt.subplots(figsize=(15, 10))
 # x = [i for i in range(len(degree_distribution_ml_1)) if degree_distribution_ml_1[i] > 0]
-x = [i for i in range(150) if degree_distribution_ml_0[i] > 0]
+x = [i for i in range(100) if degree_distribution_ml_0[i] > 0]
 y = [degree_distribution_ml_1[i] for i in x]
 ax.bar(x, y)
 ax.set_title('Machine Learning Developers')
