@@ -1,6 +1,8 @@
+# Importing Libraries
 import networkx as nx
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Importing dataset
 users = pd.read_csv('../../csv/musae_git_target.csv')
@@ -8,40 +10,69 @@ users = pd.read_csv('../../csv/musae_git_target.csv')
 # Reading Graphs
 Data = open('../../csv/musae_git_edges.csv', "r")
 next(Data, None)  # skip the first line in the input file
-G = nx.parse_edgelist(Data, delimiter=',', create_using=nx.Graph(), nodetype=int)
-Data.close()
+followers = nx.parse_edgelist(Data, delimiter=',', create_using=nx.Graph(), nodetype=int)
 
 # Assign 'ml_target' attribute to the nodes in the graph
 ml_target_dict = users.set_index('id')['ml_target'].to_dict()
-nx.set_node_attributes(G, ml_target_dict, 'ml_target')
+nx.set_node_attributes(followers, ml_target_dict, 'ml_target')
 
-# Function to calculate and plot degree distribution for given ml_target
-def plot_degree_distribution(G, ml_target_value, ax, title):
-    # Filter nodes by ml_target value and get their degrees
-    degrees = [degree for node, degree in G.degree() if G.nodes[node]['ml_target'] == ml_target_value]
-    # Calculate the degree distribution
-    degree_counts = {}
-    for degree in degrees:
-        degree_counts[degree] = degree_counts.get(degree, 0) + 1
-    # Sort the degrees and get corresponding counts
-    items = sorted(degree_counts.items())
-    degrees, counts = zip(*items)
-    # Plot
-    ax.plot(degrees, counts, 'o')
-    ax.set_title(title)
-    ax.set_xlabel('Degree (log)')
-    ax.set_ylabel('Frequency (log)')
-    ax.set_xscale('log')
-    ax.set_yscale('log')
 
-# Create figure and axes for the subplots
-fig, axes = plt.subplots(1, 2, figsize=(20, 10))
+# Function to calculate degree distribution
+def degree_distribution(graph, beta):
+    degrees = [degree for node, degree in graph.degree()]
+    hist, bin_edges = np.histogram(degrees, bins=np.arange(0, max(degrees) + 2))
+    return hist ** beta
 
-# Plot degree distribution for ml_target = 0
-plot_degree_distribution(G, 0, axes[0], 'Web Developers')
 
-# Plot degree distribution for ml_target = 1
-plot_degree_distribution(G, 1, axes[1], 'ML Developers')
+# Control the beta value
+beta = 1.0  # You can change this value to see the effect
 
-plt.tight_layout()
+# Calculate the degree distribution for each group
+degrees_ml_0 = [degree for node, degree in followers.degree() if followers.nodes[node]['ml_target'] == 0]
+degrees_ml_1 = [degree for node, degree in followers.degree() if followers.nodes[node]['ml_target'] == 1]
+
+# Create a histogram of the degree distribution with beta adjustment
+degree_distribution_ml_0 = degree_distribution(
+    followers.subgraph([node for node in followers if followers.nodes[node]['ml_target'] == 0]), beta)
+degree_distribution_ml_1 = degree_distribution(
+    followers.subgraph([node for node in followers if followers.nodes[node]['ml_target'] == 1]), beta)
+
+# Plot the degree distribution for ml_target = 0
+fig, ax = plt.subplots(figsize=(15, 10))
+ax.bar(range(len(degree_distribution_ml_0)), degree_distribution_ml_0, color='b', alpha=0.7)
+ax.set_title(f'Degree Distribution (Web Developers) with Beta={beta}')
+ax.set_xlabel('Degree')
+ax.set_ylabel('Frequency')
+plt.show()
+
+# Plot the degree distribution for ml_target = 1
+fig, ax = plt.subplots(figsize=(15, 10))
+ax.bar(range(len(degree_distribution_ml_1)), degree_distribution_ml_1, color='r', alpha=0.7)
+ax.set_title(f'Degree Distribution (Machine Learning Developers) with Beta={beta}')
+ax.set_xlabel('Degree')
+ax.set_ylabel('Frequency')
+plt.show()
+
+# Plot the degree distribution for ml_target = 0 in log-log scale
+fig, ax = plt.subplots(figsize=(15, 10))
+x = [i for i in range(len(degree_distribution_ml_0)) if degree_distribution_ml_0[i] > 0]
+y = [degree_distribution_ml_0[i] for i in x]
+ax.plot(x, y, 'bo', markersize=5)
+ax.set_title(f'Degree Distribution (Web Developers) - Log-Log Scale with Beta={beta}')
+ax.set_xlabel('Degree')
+ax.set_ylabel('Frequency')
+ax.set_xscale('log')
+ax.set_yscale('log')
+plt.show()
+
+# Plot the degree distribution for ml_target = 1 in log-log scale
+fig, ax = plt.subplots(figsize=(15, 10))
+x = [i for i in range(len(degree_distribution_ml_1)) if degree_distribution_ml_1[i] > 0]
+y = [degree_distribution_ml_1[i] for i in x]
+ax.plot(x, y, 'ro', markersize=5)
+ax.set_title(f'Degree Distribution (Machine Learning Developers) - Log-Log Scale with Beta={beta}')
+ax.set_xlabel('Degree')
+ax.set_ylabel('Frequency')
+ax.set_xscale('log')
+ax.set_yscale('log')
 plt.show()

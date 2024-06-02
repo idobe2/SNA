@@ -9,35 +9,44 @@ data = pd.read_csv(file_path)
 # Display the first few rows of the dataframe to understand its structure and what kind of data it contains
 data.head()
 
-# Count the occurrences of each programming language
-language_counts = data['most_common_language'].value_counts()
-
 # Filter out entries where 'most_common_language' is "No languages detected" or similar
-filtered_language_counts = data[data['most_common_language'].str.lower() != 'no languages detected'][
-    'most_common_language'].value_counts()
+filtered_data = data[data['most_common_language'].str.lower() != 'no languages detected']
 
-# Plot only the top 10 languages (excluding "No languages detected") for better readability
-top_languages_filtered = filtered_language_counts.head(10)
+# Get the top 10 languages
+top_languages = filtered_data['most_common_language'].value_counts().head(10).index
 
-np.random.seed(0)  # For reproducibility
-colors = np.random.rand(len(top_languages_filtered), 3)  # Generate as many colors as there are languages
+# Filter the dataframe to include only the top 10 languages
+filtered_data = filtered_data[filtered_data['most_common_language'].isin(top_languages)]
 
-# Plotting the distribution of the most common programming languages
-plt.figure(figsize=(10, 6))
-top_languages_filtered.plot(kind='bar', color=colors)
-plt.title('Top 10 Most Common Programming Languages Among GitHub Users')
+# Create a pivot table to count the occurrences of each programming language split by ml_target
+pivot_table = filtered_data.pivot_table(index='most_common_language', columns='ml_target', aggfunc='size', fill_value=0)
+
+# Sort the pivot table by the total count
+pivot_table = pivot_table.loc[top_languages]
+
+# Plotting the distribution of the most common programming languages split by ml_target
+plt.figure(figsize=(12, 8))
+pivot_table.plot(kind='bar', stacked=True, color=['#1f77b4', '#ff7f0e'])
+plt.title('Top 10 Most Common Programming Languages')
 plt.xlabel('Programming Language')
 plt.ylabel('Number of Users')
 plt.xticks(rotation=45)
+plt.legend(title='Developer type')
 plt.grid(axis='y', linestyle='--')
 
 plt.show()
 
-# Adding a pie chart to visualize the same data
-plt.figure(figsize=(10, 8))
-top_languages_filtered.plot(kind='pie', colors=colors, autopct='%1.1f%%', startangle=140)
-plt.title('Distribution of Top 10 Most Common Programming Languages Among GitHub Users')
-plt.ylabel('')  # Hide the y-label as it's unnecessary for a pie chart
-plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+# Adding a pie chart to visualize the split for each language
+fig, axes = plt.subplots(2, 5, figsize=(20, 10))
+axes = axes.flatten()
+colors = ['#1f77b4', '#ff7f0e']
+
+for i, language in enumerate(top_languages):
+    language_data = pivot_table.loc[language]
+    axes[i].pie(language_data, labels=language_data.index, colors=colors, autopct='%1.1f%%', startangle=140)
+    axes[i].set_title(language)
+
+plt.suptitle('Distribution of Top 10 Most Common Programming Languages Split by ML Target')
+plt.tight_layout(rect=[0, 0, 1, 0.96])
 
 plt.show()

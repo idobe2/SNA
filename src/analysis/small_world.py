@@ -1,6 +1,5 @@
 import pandas as pd
 import networkx as nx
-import numpy as np
 
 # Load data from CSV
 edges = pd.read_csv('../../csv/musae_git_edges.csv')
