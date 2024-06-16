@@ -2,8 +2,8 @@ import pandas as pd
 import networkx as nx
 
 # Load the provided CSV files
-edges_file_path = '../../csv/musae_git_edges.csv'
-target_file_path = '../../csv/git_target_languages.csv'
+edges_file_path = '../../csv/filtered_edges.csv'
+target_file_path = '../../csv/git-exported.csv'
 
 edges_df = pd.read_csv(edges_file_path)
 target_df = pd.read_csv(target_file_path)
